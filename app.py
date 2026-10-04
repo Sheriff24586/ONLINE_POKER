@@ -29,12 +29,17 @@ def game_page(code):
 def create_room(data):
     data = data or {}
     name = str(data.get('name', '')).strip()[:20]
+    gender = str(data.get('gender', '')).strip().lower()
+    special_name = name.casefold() in ('manomita', 'diya')
+    developers_girlfriend = data.get('developers_girlfriend') is True and special_name and gender == 'female'
     config = data.get('config') or {}
     if not name:
         return emit('error_message', {'message': 'Enter a player name.'})
+    if gender not in ('male', 'female'):
+        return emit('error_message', {'message': 'Choose Male or Female for your avatar.'})
     player_id = str(uuid.uuid4())
     session['player_id'] = player_id
-    room = rooms.create_room(name, player_id, request.sid, config)
+    room = rooms.create_room(name, player_id, request.sid, config, gender, developers_girlfriend)
     join_room(room.code)
     emit('room_created', {'code': room.code, 'player_id': player_id})
     emit('state', room.public_state(player_id), to=room.code)
@@ -43,12 +48,15 @@ def create_room(data):
 def join_existing(data):
     data = data or {}
     name = str(data.get('name', '')).strip()[:20]
+    gender = str(data.get('gender', '')).strip().lower()
+    special_name = name.casefold() in ('manomita', 'diya')
+    developers_girlfriend = data.get('developers_girlfriend') is True and special_name and gender == 'female'
     code = str(data.get('code', '')).strip().upper()
-    if not name or len(code) != 6:
-        return emit('error_message', {'message': 'Enter a name and six-digit room code.'})
+    if not name or len(code) != 6 or gender not in ('male', 'female'):
+        return emit('error_message', {'message': 'Enter a name, choose Male or Female, and enter a six-digit room code.'})
     player_id = session.get('player_id') or str(uuid.uuid4())
     session['player_id'] = player_id
-    result = rooms.join_room(code, name, player_id, request.sid)
+    result = rooms.join_room(code, name, player_id, request.sid, gender, developers_girlfriend)
     if isinstance(result, str):
         return emit('error_message', {'message': result})
     join_room(code)

@@ -48,8 +48,16 @@ function render(state) {
     const winner = winnerIds.has(player.id);
     const stateClass = player.id === state.turn_id ? ' active' : winner ? ' winner' : settled ? ' loser' : '';
     seat.className = `seat seat${index}${stateClass}`;
-    seat.innerHTML = `<div class="player-avatar" style="--avatar-hue:${(index * 47 + 24) % 360}" aria-hidden="true"><span class="avatar-head"></span><span class="avatar-neck"></span><span class="avatar-body"></span><span class="avatar-collar"></span></div>
+    const gender = player.gender === 'female' ? 'female' : 'male';
+    const isDevelopersGirlfriend = player.developers_girlfriend === true;
+    if (isDevelopersGirlfriend) seat.classList.add('special-girlfriend');
+    const avatar = isDevelopersGirlfriend
+      ? '<div class="player-avatar special-girlfriend"><img src="/static/images/developers-girlfriend.webp" alt=""></div>'
+      : `<div class="player-avatar ${gender}" style="--avatar-hue:${gender === 'female' ? 338 : (index * 47 + 24) % 360}" aria-hidden="true"><span class="avatar-head"></span><span class="avatar-neck"></span><span class="avatar-body"></span><span class="avatar-collar"></span></div>`;
+    const specialTitle = isDevelopersGirlfriend ? '<div class="girlfriend-title">DEVELOPER\'S<br>GIRLFRIEND</div>' : '';
+    seat.innerHTML = `${avatar}
       <div class="seat-info">
+        ${specialTitle}
         <div class="name">${esc(player.name)}${player.id === state.dealer_id ? ' <i>D</i>' : ''}</div>
         <div class="stack">STACK ${player.stack}</div>
         <div class="bet">BET ${player.bet}${player.all_in ? ' · ALL-IN' : ''}${player.folded ? ' · FOLDED' : ''}</div>

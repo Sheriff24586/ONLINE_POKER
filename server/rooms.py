@@ -17,7 +17,7 @@ class Room:
             game=self.game
             ps=[]
             for p in self.players:
-                ps.append({'id':p.id,'name':p.name,'seat':p.seat,'stack':p.stack,'connected':p.connected,'folded':p.folded,'all_in':p.all_in,'bet':p.street_bet,'hole':[c.label() for c in p.hole] if game and (p.id==viewer_id or game.stage=='showdown') else [None,None]})
+                ps.append({'id':p.id,'name':p.name,'gender':p.gender,'developers_girlfriend':p.developers_girlfriend,'seat':p.seat,'stack':p.stack,'connected':p.connected,'folded':p.folded,'all_in':p.all_in,'bet':p.street_bet,'hole':[c.label() for c in p.hole] if game and (p.id==viewer_id or game.stage=='showdown') else [None,None]})
             turn_player=game.players[game.turn_index] if game and game.turn_index is not None else None
             return {'code':self.code,'host_id':self.host_id,'players':ps,'stage':game.stage if game else 'waiting','board':[c.label() for c in game.board] if game else [],'pot':game.pot if game else 0,'current_bet':game.current_bet if game else 0,'turn_id':turn_player.id if turn_player else None,'turn_name':turn_player.name if turn_player else None,'winner_ids':list(game.winner_ids) if game else [],'dealer_id':game.players[game.dealer_index].id if game else (self.players[0].id if self.players else None),'last_action':game.last_action if game else '','hand_number':game.hand_number if game else 0,'history':list(self.action_history),'can_undo':bool(self.undo_stack),'can_redo':bool(self.redo_stack),'config':self.config}
 
@@ -32,18 +32,18 @@ class RoomManager:
         try: c['small_blind']=max(1,int(raw.get('small_blind',c['small_blind']))); c['big_blind']=max(c['small_blind']+1,int(raw.get('big_blind',c['big_blind']))); c['starting_stack']=max(c['big_blind'],int(raw.get('starting_stack',c['starting_stack']))); c['max_players']=min(10,max(2,int(raw.get('max_players',c['max_players'])))); c['action_timer']=max(0,int(raw.get('action_timer',c['action_timer'])))
         except (TypeError,ValueError): pass
         return c
-    def create_room(self,name,pid,sid=None,config=None):
+    def create_room(self,name,pid,sid=None,config=None,gender='male',developers_girlfriend=False):
         with self.lock:
-            code=self._code(); cfg=self._clean_config(config or {}); r=Room(code,pid,cfg); r.add(Player(pid,name,0,stack=cfg['starting_stack'])); self.rooms[code]=r; self.player_room[pid]=code; self.player_sid[pid]=sid; return r
-    def join_room(self,code,name,pid,sid=None):
+            code=self._code(); cfg=self._clean_config(config or {}); r=Room(code,pid,cfg); r.add(Player(pid,name,0,stack=cfg['starting_stack'],gender=gender,developers_girlfriend=developers_girlfriend)); self.rooms[code]=r; self.player_room[pid]=code; self.player_sid[pid]=sid; return r
+    def join_room(self,code,name,pid,sid=None,gender='male',developers_girlfriend=False):
         with self.lock:
             r=self.rooms.get(code)
             if not r: return 'Room not found.'
             if len(r.players)>=r.config['max_players'] and pid not in self.player_room: return 'Room is full.'
             existing=next((p for p in r.players if p.id==pid),None)
-            if existing: existing.connected=True; existing.name=name; self.player_sid[pid]=sid; return r
+            if existing: existing.connected=True; existing.name=name; existing.gender=gender; existing.developers_girlfriend=developers_girlfriend; self.player_sid[pid]=sid; return r
             if r.game and r.game.stage not in ('waiting','showdown'): return 'A hand is already in progress.'
-            seat=max([p.seat for p in r.players],default=-1)+1; p=Player(pid,name,seat,stack=r.config['starting_stack']); r.add(p); self.player_room[pid]=code; self.player_sid[pid]=sid
+            seat=max([p.seat for p in r.players],default=-1)+1; p=Player(pid,name,seat,stack=r.config['starting_stack'],gender=gender,developers_girlfriend=developers_girlfriend); r.add(p); self.player_room[pid]=code; self.player_sid[pid]=sid
             if len(r.players) >= r.config['max_players'] and r.game is None:
                 r.game=PokerGame(r.players, r.config); r.game.start_hand()
             return r

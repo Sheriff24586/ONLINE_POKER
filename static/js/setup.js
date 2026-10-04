@@ -21,8 +21,9 @@ form.addEventListener('submit', e => {
   const maxPlayers = Number(document.querySelector('#max_players').value);
   const timer = Number(document.querySelector('#action_timer').value);
   if (!window.PLAYER_NAME) return fail('Your player name is missing. Go back and enter a name.');
+  if (!['male', 'female'].includes(window.PLAYER_GENDER)) return fail('Your avatar choice is missing. Go back and choose Male or Female.');
   if (!Number.isInteger(small) || small < 1) return fail('Small blind must be at least 1.');
   if (!Number.isInteger(big) || big <= small) return fail('Big blind must be greater than the small blind.');
   if (!Number.isInteger(stack) || stack < big) return fail('Starting stack must be at least the big blind.');
-  socket.emit('create_room', {name: window.PLAYER_NAME, config: {small_blind: small, big_blind: big, starting_stack: stack, max_players: maxPlayers, action_timer: timer}});
+  socket.emit('create_room', {name: window.PLAYER_NAME, gender: window.PLAYER_GENDER, developers_girlfriend: sessionStorage.getItem('poker_is_developers_girlfriend') === 'true', config: {small_blind: small, big_blind: big, starting_stack: stack, max_players: maxPlayers, action_timer: timer}});
 });

@@ -2,6 +2,29 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><title>Online Poker</title><link rel="stylesheet" href="/static/css/poker.css"><script src="/static/js/socket.io.min.js"></script></head>
 <body>
-<main class="lobby"><div class="brand">♠ <span>POKER</span><small>ONLINE</small></div><div class="panel"><h1>Join the table</h1><label>Your name<input id="name" maxlength="20" placeholder="Player name" autocomplete="off"></label><button id="create">CREATE ROOM</button><div class="or">OR</div><label>Room code<input id="code" maxlength="6" inputmode="numeric" placeholder="123456"></label><button class="secondary" id="join">JOIN ROOM</button><p id="error" class="error"></p></div></main>
+<main class="lobby"><div class="brand">♠ <span>POKER</span><small>ONLINE</small></div><div class="panel"><h1>Join the table</h1><label>Your name<input id="name" maxlength="20" placeholder="Player name" autocomplete="off"></label><div id="avatar-choice" class="avatar-summary hidden"><span id="avatar-label">Avatar not selected</span><button id="change-avatar" class="avatar-change" type="button">CHANGE</button></div><button id="create">CREATE ROOM</button><div class="or">OR</div><label>Room code<input id="code" maxlength="6" inputmode="numeric" placeholder="123456"></label><button class="secondary" id="join">JOIN ROOM</button><p id="error" class="error"></p></div></main>
+<dialog id="avatar-dialog" class="avatar-dialog" aria-labelledby="avatar-title" aria-describedby="avatar-description">
+  <div class="avatar-dialog-content">
+    <div class="avatar-dialog-mark" aria-hidden="true">♠</div>
+    <h2 id="avatar-title">Choose your avatar</h2>
+    <p id="avatar-description">How should your character appear at the table?</p>
+    <div class="avatar-options">
+      <button class="avatar-option male-option" type="button" data-gender="male"><span aria-hidden="true">♂</span><strong>MALE</strong></button>
+      <button class="avatar-option female-option" type="button" data-gender="female"><span aria-hidden="true">♀</span><strong>FEMALE</strong></button>
+    </div>
+    <button id="cancel-avatar" class="avatar-cancel" type="button">CANCEL</button>
+  </div>
+</dialog>
+<dialog id="girlfriend-dialog" class="avatar-dialog girlfriend-dialog" aria-labelledby="girlfriend-title" aria-describedby="girlfriend-description">
+  <div class="avatar-dialog-content">
+    <div class="avatar-dialog-mark girlfriend-mark" aria-hidden="true">♥</div>
+    <h2 id="girlfriend-title">One little question…</h2>
+    <p id="girlfriend-description">Are you the developer’s girlfriend?</p>
+    <div class="girlfriend-options">
+      <button class="girlfriend-answer yes-answer" type="button" data-girlfriend-answer="yes">YES ♥</button>
+      <button class="girlfriend-answer no-answer" type="button" data-girlfriend-answer="no">NO</button>
+    </div>
+  </div>
+</dialog>
 <script src="/static/js/lobby.js"></script>
 </body></html>

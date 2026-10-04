@@ -18,6 +18,8 @@ class Player:
     hole: list = field(default_factory=list)
     committed: int = 0
     street_bet: int = 0
+    gender: str = 'male'
+    developers_girlfriend: bool = False
 
 class PokerGame:
     def __init__(self, players, config=None):

@@ -70,7 +70,7 @@
       </form>
     </section>
   </main>
-  <script>window.PLAYER_NAME={{ player_name|tojson }};</script>
+  <script>window.PLAYER_NAME={{ player_name|tojson }};window.PLAYER_GENDER=sessionStorage.getItem('poker_gender')||'';</script>
   <script src="/static/js/setup.js"></script>
 </body>
 </html>
