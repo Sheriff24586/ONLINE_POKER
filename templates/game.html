@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>Room {{room_code}}</title>
+  <link rel="stylesheet" href="/static/css/poker.css">
+  <script src="/static/js/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="portrait">Rotate your device to landscape to play.</div>
+  <main class="game">
+    <header>
+      <div class="brand mini">♠ <span>POKER</span></div>
+      <div>ROOM <b id="roomcode">{{room_code}}</b> · <span id="players">0/10 players</span></div>
+      <div class="header-actions">
+        <button id="newSessionBtn" class="danger hidden">NEW SESSION</button>
+        <button class="tiny" onclick="location.href='/'">EXIT</button>
+      </div>
+    </header>
+    <section class="table-wrap">
+      <div class="pot" id="pot">POT 0</div>
+      <div class="felt">
+        <div id="dealOverlay" class="deal-overlay hidden" aria-hidden="true">
+          <div class="shuffle-cards"><span>&#9824;</span><span>&#9830;</span><span>&#9827;</span></div>
+          <div class="deal-label">SHUFFLING DECK</div>
+        </div>
+        <div class="community" id="board"></div>
+        <div id="seats"></div>
+        <div class="center-status" id="status"></div>
+      </div>
+    </section>
+    <section class="controls">
+      <div class="game-details" aria-live="polite">
+        <div class="detail"><span>STREET</span><strong id="stage">WAITING</strong></div>
+        <div class="detail"><span>CURRENT BET</span><strong id="current-bet">0</strong></div>
+        <div class="detail"><span>TURN</span><strong id="turn">Waiting for players</strong></div>
+      </div>
+      <div class="history-controls">
+        <button id="undoBtn" class="secondary" disabled>UNDO</button>
+        <button id="redoBtn" class="secondary" disabled>REDO</button>
+      </div>
+      <div class="session-controls">
+        <button id="newHandBtn" class="primary hidden">NEW HAND</button>
+      </div>
+      <div id="actions" class="actions hidden">
+        <button class="action-fold" data-action="fold" aria-label="Fold"><span aria-hidden="true">❌</span> FOLD</button>
+        <button class="action-check" data-action="check" aria-label="Check"><span aria-hidden="true">✓</span> CHECK</button>
+        <button class="action-call" data-action="call" aria-label="Call"><span aria-hidden="true">↔</span> CALL</button>
+        <input id="raise" type="number" min="1" placeholder="Raise to">
+        <button id="raiseBtn" class="action-raise" aria-label="Raise"><span aria-hidden="true">⬆</span> RAISE</button>
+        <button class="action-allin" data-action="allin" aria-label="All-in"><span aria-hidden="true">⚡</span> ALL-IN</button>
+      </div>
+      <details id="historyPanel" class="history-panel" open>
+        <summary>Action history</summary>
+        <ol id="actionHistory"></ol>
+      </details>
+    </section>
+  </main>
+  <script>window.ROOM_CODE={{room_code|tojson}};</script>
+  <script src="/static/js/game.js"></script>
+</body>
+</html>

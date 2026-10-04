@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>Game Setup · Online Poker</title>
+  <link rel="stylesheet" href="/static/css/poker.css">
+  <script src="/static/js/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="portrait">Rotate your device to landscape to set up the game.</div>
+  <main class="setup-page">
+    <header class="setup-topbar">
+      <div class="brand mini">♠ <span>POKER</span> <small>ONLINE</small></div>
+      <div class="setup-title">GAME SETUP</div>
+      <button class="tiny" onclick="location.href='/'">BACK</button>
+    </header>
+
+    <section class="setup-shell">
+      <div class="setup-heading">
+        <div>
+          <div class="eyebrow">SET THE TABLE</div>
+          <h1>Game Setup</h1>
+        </div>
+        <div class="game-type">TEXAS HOLD'EM</div>
+      </div>
+
+      <form id="setup-form" class="setup-form">
+        <section class="setup-card">
+          <h2>BLINDS</h2>
+          <div class="field-grid two">
+            <label>SMALL BLIND<input id="small_blind" type="number" min="1" step="1" value="5" required></label>
+            <label>BIG BLIND<input id="big_blind" type="number" min="2" step="1" value="10" required></label>
+          </div>
+        </section>
+
+        <section class="setup-card">
+          <h2>TABLE</h2>
+          <div class="field-grid two">
+            <label>STARTING STACK<input id="starting_stack" type="number" min="1" step="1" value="1000" required></label>
+            <label>PLAYERS REQUIRED TO START
+              <select id="max_players">
+                {% for n in range(2, 11) %}<option value="{{ n }}" {% if n == 10 %}selected{% endif %}>{{ n }} players</option>{% endfor %}
+              </select>
+            </label>
+            <label>ACTION TIMER
+              <select id="action_timer">
+                <option value="0">No timer</option>
+                <option value="15">15 seconds</option>
+                <option value="30" selected>30 seconds</option>
+                <option value="45">45 seconds</option>
+                <option value="60">60 seconds</option>
+              </select>
+            </label>
+            <label>DEALER
+              <div class="readonly-field">YOU · ROOM CREATOR</div>
+            </label>
+          </div>
+        </section>
+
+        <section class="setup-card rules-card">
+          <h2>HOUSE RULE</h2>
+          <div class="rule-row"><span class="check">✓</span><span>Raise can be any amount greater than the current bet.</span></div>
+          <div class="rule-row"><span class="check">✓</span><span>No maximum raise other than the player's available stack.</span></div>
+          <div class="rule-row"><span class="check">✓</span><span>Dealer, small blind and big blind rotate automatically each hand.</span></div>
+        </section>
+
+        <p id="setup-error" class="error"></p>
+        <button class="primary setup-submit" type="submit">♠ &nbsp; CREATE ROOM</button>
+      </form>
+    </section>
+  </main>
+  <script>window.PLAYER_NAME={{ player_name|tojson }};</script>
+  <script src="/static/js/setup.js"></script>
+</body>
+</html>

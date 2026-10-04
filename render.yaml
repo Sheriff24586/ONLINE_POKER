@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: online-poker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --worker-class geventwebsocket.gunicorn.workers.GeventWebSocketWorker --workers 1 app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5
