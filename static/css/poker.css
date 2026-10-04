@@ -49,3 +49,4 @@
 .seat.special-girlfriend .seat-info{border-color:rgba(255,153,203,.76);box-shadow:0 0 12px rgba(242,84,163,.38),inset 0 0 12px rgba(255,170,210,.06)}
 @keyframes girlfriend-title-glow{to{box-shadow:0 0 12px rgba(255,90,170,.95),0 0 26px rgba(255,74,163,.68),inset 0 0 10px rgba(255,182,219,.23);filter:brightness(1.14)}}
 @media(prefers-reduced-motion:reduce){.girlfriend-title{animation:none!important}}
+.felt>.pot{top:24%;left:50%;transform:translateX(-50%);padding:6px 14px;font-size:15px;white-space:nowrap}
