@@ -194,29 +194,11 @@ body:has(.game){
 @media(max-width:600px){.card-deck{left:calc(50% + 139px);width:32px;height:46px}.card-deck span:nth-child(3)::after{width:20px;height:30px;font-size:16px}}
 @media(prefers-reduced-motion:reduce){.card-deck.shuffling,.card-deck.shuffling span,.card-dealt,.hole-deal{animation:none!important}}
 
-/* Mobile fullscreen entry prompt */
 html{min-height:100%;min-height:100dvh}
 .game{min-height:100vh;min-height:100dvh}
-body.fullscreen-active .game{height:100vh;height:100dvh;min-height:100vh;min-height:100dvh}
-.fullscreen-toggle{display:none!important}
-.fullscreen-prompt{display:none;position:fixed;inset:0;z-index:1200;place-items:center;padding:20px;background:rgba(5,9,15,.76);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.fullscreen-prompt[hidden]{display:none!important}
-.is-mobile-game .fullscreen-prompt:not([hidden]){display:grid}
-.fullscreen-card{width:min(390px,100%);padding:28px 24px 20px;border:1px solid rgba(236,202,131,.38);border-radius:24px;background:linear-gradient(150deg,rgba(24,30,42,.98),rgba(10,15,24,.99));box-shadow:0 26px 90px rgba(0,0,0,.58),inset 0 1px rgba(255,255,255,.08);text-align:center}
-.fullscreen-icon{display:grid;place-items:center;width:58px;height:58px;margin:0 auto 14px;border:1px solid rgba(239,203,133,.42);border-radius:18px;background:linear-gradient(145deg,rgba(229,193,119,.2),rgba(144,98,47,.12));color:#f2d58f;font-size:34px;line-height:1}
-.fullscreen-eyebrow{margin:0;color:#d8bc7a;font-size:10px;font-weight:900;letter-spacing:3px}
-.fullscreen-card h1{margin:7px 0 8px;color:#fff2d4;font-size:25px;letter-spacing:.2px}
-.fullscreen-card p#fullscreenMessage{margin:0 auto 20px;max-width:300px;color:#b9c1cb;font-size:14px;line-height:1.55}
-.fullscreen-card button{width:100%;min-height:50px;border-radius:13px;font-size:12px;font-weight:950;letter-spacing:1px}
-.fullscreen-primary{border:1px solid rgba(255,234,183,.45);background:linear-gradient(135deg,#f1d795,#bd9143);color:#241b10;box-shadow:0 8px 22px rgba(171,126,55,.23),inset 0 1px rgba(255,255,255,.55)}
-.fullscreen-secondary{margin-top:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:#b4bdc7}
-.is-mobile-game .game-header .fullscreen-toggle{display:inline-flex!important;align-items:center;justify-content:center;min-width:36px;padding:6px 10px;font-size:20px;line-height:1}
-@media(prefers-reduced-motion:reduce){.fullscreen-card,.fullscreen-primary{scroll-behavior:auto}}
 @media(max-width:900px){
-  .fullscreen-prompt{padding:max(18px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left))}
   .game-header{padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
 }
-body.fullscreen-active{overflow:hidden}
 
 /* Stacks at each seat, flying wager chips, and winner collection */
 .player-chip-stack{position:absolute;z-index:5;width:28px;height:42px;pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.42));transition:filter .18s,transform .18s}
@@ -270,23 +252,3 @@ body.fullscreen-active{overflow:hidden}
 .mini-card{font-family:Georgia,'Times New Roman',serif;font-weight:900;box-shadow:0 5px 12px rgba(0,0,0,.32),inset 0 1px 0 #fff}
 .mini-card small{font-family:system-ui,sans-serif;font-weight:900;text-shadow:0 1px rgba(255,255,255,.7)}
 .card-back{border:1px solid #e8d8b9;background:repeating-linear-gradient(45deg,#f2e9d7 0 3px,#bdad91 3px 5px);box-shadow:inset 0 0 0 2px rgba(255,255,255,.88),inset 0 0 0 4px rgba(76,99,82,.78),0 5px 12px rgba(0,0,0,.32)}
-@media(max-width:900px) and (orientation:landscape){
-  html:fullscreen,html:-webkit-full-screen{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
-  body.fullscreen-active{height:auto;min-height:100dvh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
-  body.fullscreen-active .game{height:auto;min-height:100dvh;overflow:visible}
-  body.fullscreen-active .game-header{order:0;flex:0 0 54px}
-  body.fullscreen-active .controls{order:1;flex:0 0 auto;padding:5px 8px max(5px,env(safe-area-inset-bottom));border-top:0;border-bottom:1px solid rgba(228,196,119,.25);box-shadow:0 8px 22px rgba(0,0,0,.2)}
-  body.fullscreen-active .game-details{gap:5px;margin:0 auto 4px}
-  body.fullscreen-active .detail{flex:1 1 0;min-width:0;padding:4px 7px}
-  body.fullscreen-active .detail span{font-size:7px}
-  body.fullscreen-active .detail strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
-  body.fullscreen-active .history-controls{margin:0 auto 4px}
-  body.fullscreen-active .history-controls button{min-height:27px;padding:4px 10px}
-  body.fullscreen-active .session-controls{margin:0 auto 3px}
-  body.fullscreen-active .actions{gap:5px;margin:3px auto 0;flex-wrap:nowrap}
-  body.fullscreen-active .actions button{flex:1 1 0;min-width:0;min-height:34px;padding:5px 6px;font-size:9px}
-  body.fullscreen-active .actions input{flex:1 1 76px;width:76px;min-width:54px;min-height:34px;padding:5px;font-size:9px}
-  body.fullscreen-active .history-panel{display:none}
-  body.fullscreen-active .table-wrap{order:2;flex:1 0 auto;min-height:0;padding:4px 8px 10px;overflow:visible}
-  body.fullscreen-active .table-shell{width:97vw;height:clamp(170px,50dvh,320px);min-height:0}
-}
