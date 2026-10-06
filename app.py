@@ -1,7 +1,7 @@
 import os
 import uuid
 from flask import Flask, render_template, session, request
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, emit, join_room, leave_room as socket_leave_room
 from server.rooms import RoomManager
 
 app = Flask(__name__)
@@ -54,7 +54,11 @@ def join_existing(data):
     code = str(data.get('code', '')).strip().upper()
     if not name or len(code) != 6 or gender not in ('male', 'female'):
         return emit('error_message', {'message': 'Enter a name, choose Male or Female, and enter a six-digit room code.'})
-    player_id = session.get('player_id') or str(uuid.uuid4())
+    player_id = session.get('player_id')
+    # A socket session cookie may outlive an explicit EXIT. Reuse it only when
+    # the server still recognizes this player as a member of this room.
+    if not player_id or rooms.player_room.get(player_id) != code:
+        player_id = str(uuid.uuid4())
     session['player_id'] = player_id
     result = rooms.join_room(code, name, player_id, request.sid, gender, developers_girlfriend)
     if isinstance(result, str):
@@ -125,6 +129,21 @@ def new_session(data):
     msg = rooms.new_session(code, session.get('player_id'))
     if msg:
         return emit('error_message', {'message': msg})
+
+@socketio.on('leave_room')
+def leave_current_room(data):
+    data = data or {}
+    code = str(data.get('code', '')).upper()
+    player_id = session.get('player_id') or data.get('player_id')
+    if not isinstance(player_id, str) or not player_id:
+        return emit('error_message', {'message': 'Your player session has expired. Return to the lobby.'})
+    msg = rooms.leave_room(code, player_id)
+    if msg:
+        return emit('error_message', {'message': msg})
+    session.pop('player_id', None)
+    socket_leave_room(code)
+    emit('left_room', {'code': code})
+    rooms.broadcast_state(code)
 
 @socketio.on('disconnect')
 def disconnected():

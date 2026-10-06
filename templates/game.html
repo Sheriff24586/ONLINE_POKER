@@ -2,32 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
   <title>Room {{room_code}}</title>
   <link rel="stylesheet" href="/static/css/poker.css">
   <script src="/static/js/socket.io.min.js"></script>
 </head>
 <body>
   <div id="portrait">Rotate your device to landscape to play.</div>
+  <section id="fullscreenPrompt" class="fullscreen-prompt" role="dialog" aria-modal="true" aria-labelledby="fullscreenTitle" hidden>
+    <div class="fullscreen-card">
+      <div class="fullscreen-icon" aria-hidden="true">⛶</div>
+      <p class="fullscreen-eyebrow">POKER TABLE</p>
+      <h1 id="fullscreenTitle">Play full screen</h1>
+      <p id="fullscreenMessage">Hide the browser bars for more room at the table. Turn your phone sideways for the best view.</p>
+      <button id="enterFullscreenBtn" class="fullscreen-primary">ENTER FULL SCREEN</button>
+      <button id="continueWindowedBtn" class="fullscreen-secondary">CONTINUE WITHOUT IT</button>
+    </div>
+  </section>
   <main class="game">
-    <header>
-      <div class="brand mini">♠ <span>POKER</span></div>
-      <div>ROOM <b id="roomcode">{{room_code}}</b> · <span id="players">0/10 players</span></div>
+    <header class="game-header">
+      <div class="brand mini game-brand">♠ <span>POKER</span><small>PRIVATE TABLE</small></div>
+      <div class="room-overview">
+        <span class="live-indicator" aria-hidden="true"></span>
+        <span class="room-label">ROOM</span>
+        <b id="roomcode">{{room_code}}</b>
+        <span class="room-divider" aria-hidden="true"></span>
+        <span id="players">0/10 players</span>
+      </div>
       <div class="header-actions">
+        <button id="fullscreenToggle" class="tiny fullscreen-toggle" aria-label="Enter full screen" title="Enter full screen">⛶</button>
+        <button id="soundToggle" class="tiny sound-toggle" aria-label="Mute music and game sounds" title="Mute music and game sounds">🔊</button>
         <button id="newSessionBtn" class="danger hidden">NEW SESSION</button>
-        <button class="tiny" onclick="location.href='/'">EXIT</button>
+        <button id="exitBtn" class="tiny">EXIT</button>
       </div>
     </header>
     <section class="table-wrap">
-      <div class="felt">
-        <div class="pot" id="pot">POT 0</div>
-        <div id="dealOverlay" class="deal-overlay hidden" aria-hidden="true">
-          <div class="shuffle-cards"><span>&#9824;</span><span>&#9830;</span><span>&#9827;</span></div>
-          <div class="deal-label">SHUFFLING DECK</div>
+      <div class="table-shell">
+        <div class="felt">
+          <div class="pot" id="pot">POT 0</div>
+          <div class="card-deck" id="cardDeck" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div class="community" id="board"></div>
+          <div id="seats"></div>
+          <div class="center-status" id="status"></div>
         </div>
-        <div class="community" id="board"></div>
-        <div id="seats"></div>
-        <div class="center-status" id="status"></div>
       </div>
     </section>
     <section class="controls">
@@ -51,7 +68,7 @@
         <button id="raiseBtn" class="action-raise" aria-label="Raise"><span aria-hidden="true">⬆</span> RAISE</button>
         <button class="action-allin" data-action="allin" aria-label="All-in"><span aria-hidden="true">⚡</span> ALL-IN</button>
       </div>
-      <details id="historyPanel" class="history-panel" open>
+      <details id="historyPanel" class="history-panel">
         <summary>Action history</summary>
         <ol id="actionHistory"></ol>
       </details>

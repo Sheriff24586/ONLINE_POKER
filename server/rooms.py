@@ -17,9 +17,14 @@ class Room:
             game=self.game
             ps=[]
             for p in self.players:
-                ps.append({'id':p.id,'name':p.name,'gender':p.gender,'developers_girlfriend':p.developers_girlfriend,'seat':p.seat,'stack':p.stack,'connected':p.connected,'folded':p.folded,'all_in':p.all_in,'bet':p.street_bet,'hole':[c.label() for c in p.hole] if game and (p.id==viewer_id or game.stage=='showdown') else [None,None]})
+                if p.left: continue
+                ps.append({'id':p.id,'name':p.name,'gender':p.gender,'developers_girlfriend':p.developers_girlfriend,'seat':p.seat,'stack':p.stack,'connected':p.connected,'folded':p.folded,'all_in':p.all_in,'bet':p.street_bet,'committed':p.committed,'hole':[c.label() for c in p.hole] if game and (p.id==viewer_id or game.stage=='showdown') else [None,None]})
             turn_player=game.players[game.turn_index] if game and game.turn_index is not None else None
-            return {'code':self.code,'host_id':self.host_id,'players':ps,'stage':game.stage if game else 'waiting','board':[c.label() for c in game.board] if game else [],'pot':game.pot if game else 0,'current_bet':game.current_bet if game else 0,'turn_id':turn_player.id if turn_player else None,'turn_name':turn_player.name if turn_player else None,'winner_ids':list(game.winner_ids) if game else [],'dealer_id':game.players[game.dealer_index].id if game else (self.players[0].id if self.players else None),'last_action':game.last_action if game else '','hand_number':game.hand_number if game else 0,'history':list(self.action_history),'can_undo':bool(self.undo_stack),'can_redo':bool(self.redo_stack),'config':self.config}
+            if turn_player and turn_player.left: turn_player=None
+            dealer=game.players[game.dealer_index] if game and game.players else None
+            visible_dealer=dealer if dealer and not dealer.left else next((p for p in self.players if not p.left),None)
+            dealer_id=visible_dealer.id if visible_dealer else None
+            return {'code':self.code,'host_id':self.host_id,'players':ps,'stage':game.stage if game else 'waiting','board':[c.label() for c in game.board] if game else [],'pot':game.pot if game else 0,'current_bet':game.current_bet if game else 0,'turn_id':turn_player.id if turn_player else None,'turn_name':turn_player.name if turn_player else None,'winner_ids':list(game.winner_ids) if game else [],'dealer_id':dealer_id,'last_action':game.last_action if game else '','hand_number':game.hand_number if game else 0,'history':list(self.action_history),'can_undo':bool(self.undo_stack),'can_redo':bool(self.redo_stack),'config':self.config}
 
 class RoomManager:
     def __init__(self,socketio): self.socketio=socketio; self.rooms={}; self.player_room={}; self.player_sid={}; self.lock=threading.RLock()
@@ -39,12 +44,12 @@ class RoomManager:
         with self.lock:
             r=self.rooms.get(code)
             if not r: return 'Room not found.'
-            if len(r.players)>=r.config['max_players'] and pid not in self.player_room: return 'Room is full.'
-            existing=next((p for p in r.players if p.id==pid),None)
+            if sum(not p.left for p in r.players)>=r.config['max_players'] and pid not in self.player_room: return 'Room is full.'
+            existing=next((p for p in r.players if p.id==pid and not p.left),None)
             if existing: existing.connected=True; existing.name=name; existing.gender=gender; existing.developers_girlfriend=developers_girlfriend; self.player_sid[pid]=sid; return r
             if r.game and r.game.stage not in ('waiting','showdown'): return 'A hand is already in progress.'
             seat=max([p.seat for p in r.players],default=-1)+1; p=Player(pid,name,seat,stack=r.config['starting_stack'],gender=gender,developers_girlfriend=developers_girlfriend); r.add(p); self.player_room[pid]=code; self.player_sid[pid]=sid
-            if len(r.players) >= r.config['max_players'] and r.game is None:
+            if sum(not p.left for p in r.players) >= r.config['max_players'] and r.game is None:
                 r.game=PokerGame(r.players, r.config); r.game.start_hand()
             return r
     def resume_player(self,code,pid,sid=None):
@@ -52,14 +57,14 @@ class RoomManager:
             r=self.rooms.get(code)
             if not r: return 'Room not found.'
             if self.player_room.get(pid) != code: return 'Player session is not part of this room.'
-            p=next((x for x in r.players if x.id==pid),None)
+            p=next((x for x in r.players if x.id==pid and not x.left),None)
             if not p: return 'Player session is not part of this room.'
             p.connected=True; self.player_sid[pid]=sid; return r
     def action(self,code,pid,action,amount):
         r=self.rooms.get(code)
         if not r or not r.game: return 'Game not started.'
         with r.lock:
-            player=next((p for p in r.players if p.id==pid),None)
+            player=next((p for p in r.players if p.id==pid and not p.left),None)
             if not player: return 'Player session is not part of this room.'
             stage=r.game.stage
             if action=='fold': label=f'{player.name} folded'
@@ -81,7 +86,7 @@ class RoomManager:
         r=self.rooms.get(code)
         if not r: return 'Room not found.'
         with r.lock:
-            if not any(p.id==pid for p in r.players): return 'Player session is not part of this room.'
+            if not any(p.id==pid and not p.left for p in r.players): return 'Player session is not part of this room.'
             if not r.undo_stack: return 'There is no action to undo.'
             r.redo_stack.append(copy.deepcopy((r.players,r.game,r.action_history)))
             r.players,r.game,r.action_history=copy.deepcopy(r.undo_stack.pop())
@@ -90,7 +95,7 @@ class RoomManager:
         r=self.rooms.get(code)
         if not r: return 'Room not found.'
         with r.lock:
-            if not any(p.id==pid for p in r.players): return 'Player session is not part of this room.'
+            if not any(p.id==pid and not p.left for p in r.players): return 'Player session is not part of this room.'
             if not r.redo_stack: return 'There is no action to redo.'
             r.undo_stack.append(copy.deepcopy((r.players,r.game,r.action_history)))
             r.players,r.game,r.action_history=copy.deepcopy(r.redo_stack.pop())
@@ -99,14 +104,74 @@ class RoomManager:
         r=self.rooms.get(code)
         if not r: return 'Room not found.'
         with r.lock:
-            if not any(p.id==pid for p in r.players): return 'Player session is not part of this room.'
+            if not any(p.id==pid and not p.left for p in r.players): return 'Player session is not part of this room.'
             if not r.game: return 'Game has not started.'
+            self._prune_left_players(r)
             error=r.game.next_hand()
             if error: return error
             # A new hand starts a fresh action log and cannot undo actions from
             # the hand that has already settled.
             r.action_history.clear(); r.undo_stack.clear(); r.redo_stack.clear()
             return None
+
+    def _remove_player(self, r, player):
+        """Remove a player after their chips no longer affect an active hand."""
+        game = r.game
+        dealer = game.players[game.dealer_index] if game and game.players else None
+        index = r.players.index(player)
+        r.players.pop(index)
+        if game:
+            if dealer is player:
+                game.dealer_index = max(0, len(r.players) - 1)
+            elif dealer in r.players:
+                game.dealer_index = r.players.index(dealer)
+            else:
+                game.dealer_index = 0
+            if game.turn_index is not None:
+                if game.turn_index > index:
+                    game.turn_index -= 1
+                elif game.turn_index == index:
+                    game.turn_index = None
+
+    def _prune_left_players(self, r):
+        game = r.game
+        if not game: return
+        dealer = game.players[game.dealer_index] if game.players else None
+        departing = [p for p in r.players if p.left]
+        if not departing: return
+        r.players[:] = [p for p in r.players if not p.left]
+        if dealer in r.players:
+            game.dealer_index = r.players.index(dealer)
+        else:
+            game.dealer_index = max(0, len(r.players) - 1)
+        game.turn_index = None
+
+    def leave_room(self, code, pid):
+        with self.lock:
+            r = self.rooms.get(code)
+            if not r: return 'Room not found.'
+            with r.lock:
+                player = next((p for p in r.players if p.id == pid and not p.left), None)
+                if not player: return 'Player session is not part of this room.'
+                game = r.game
+                if game and game.stage not in ('waiting', 'showdown', 'game_over'):
+                    departing_street = game.stage
+                    error = game.leave(pid)
+                    if error: return error
+                    player.left = True
+                    r.action_history.append({'street': departing_street, 'label': f'{player.name} left the table (folded)'})
+                    r.undo_stack.clear(); r.redo_stack.clear()
+                else:
+                    self._remove_player(r, player)
+                    r.undo_stack.clear(); r.redo_stack.clear()
+                self.player_room.pop(pid, None)
+                self.player_sid.pop(pid, None)
+                if r.host_id == pid:
+                    replacement = next((p for p in r.players if not p.left and p.connected), None)
+                    r.host_id = replacement.id if replacement else None
+                if not any(not p.left for p in r.players):
+                    self.rooms.pop(code, None)
+                return None
     def new_session(self,code,pid):
         with self.lock:
             r=self.rooms.get(code)
@@ -126,6 +191,7 @@ class RoomManager:
         r=self.rooms.get(code)
         if not r: return
         for p in r.players:
+            if p.left: continue
             sid=self.player_sid.get(p.id)
             if sid: self.socketio.emit('state', r.public_state(p.id), to=sid)
     def mark_disconnected(self,pid):

@@ -13,6 +13,7 @@ class Player:
     seat: int
     stack: int = STARTING_STACK
     connected: bool = True
+    left: bool = False
     folded: bool = False
     all_in: bool = False
     hole: list = field(default_factory=list)
@@ -147,6 +148,31 @@ class PokerGame:
             self.advance_street()
         else:
             self.turn_index=self.next_pending_index(self.players.index(p))
+        return None
+
+    def leave(self, player_id):
+        """Fold a departing player out of an active hand without losing their contribution."""
+        if self.stage in ('waiting', 'showdown', 'game_over'):
+            return None
+        p = next((player for player in self.players if player.id == player_id), None)
+        if p is None:
+            return 'Player session is not part of this room.'
+        index = self.players.index(p)
+        p.left = True
+        p.folded = True
+        self.pending_actions.discard(p.id)
+
+        remaining = [player for player in self.players if not player.folded]
+        if len(remaining) <= 1:
+            return self.showdown()
+
+        if self.turn_index == index:
+            self.turn_index = None
+        if self.turn_index is None:
+            if self.pending_actions:
+                self.turn_index = self.next_pending_index(index)
+            if self.turn_index is None:
+                self.advance_street()
         return None
 
     def showdown(self):
