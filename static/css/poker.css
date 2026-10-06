@@ -270,3 +270,10 @@ body.fullscreen-active{overflow:hidden}
 .mini-card{font-family:Georgia,'Times New Roman',serif;font-weight:900;box-shadow:0 5px 12px rgba(0,0,0,.32),inset 0 1px 0 #fff}
 .mini-card small{font-family:system-ui,sans-serif;font-weight:900;text-shadow:0 1px rgba(255,255,255,.7)}
 .card-back{border:1px solid #e8d8b9;background:repeating-linear-gradient(45deg,#f2e9d7 0 3px,#bdad91 3px 5px);box-shadow:inset 0 0 0 2px rgba(255,255,255,.88),inset 0 0 0 4px rgba(76,99,82,.78),0 5px 12px rgba(0,0,0,.32)}
+@media(max-width:900px) and (orientation:landscape){
+  html:fullscreen,html:-webkit-full-screen{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
+  body.fullscreen-active{height:auto;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+  body.fullscreen-active .game{height:auto;min-height:100dvh}
+  body.fullscreen-active .game-header,body.fullscreen-active .controls{flex:0 0 auto}
+  body.fullscreen-active .table-wrap{flex:0 0 auto;min-height:56dvh;overflow:visible}
+}
