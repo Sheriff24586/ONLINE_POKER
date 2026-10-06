@@ -272,8 +272,21 @@ body.fullscreen-active{overflow:hidden}
 .card-back{border:1px solid #e8d8b9;background:repeating-linear-gradient(45deg,#f2e9d7 0 3px,#bdad91 3px 5px);box-shadow:inset 0 0 0 2px rgba(255,255,255,.88),inset 0 0 0 4px rgba(76,99,82,.78),0 5px 12px rgba(0,0,0,.32)}
 @media(max-width:900px) and (orientation:landscape){
   html:fullscreen,html:-webkit-full-screen{height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
-  body.fullscreen-active{height:auto;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
-  body.fullscreen-active .game{height:auto;min-height:100dvh}
-  body.fullscreen-active .game-header,body.fullscreen-active .controls{flex:0 0 auto}
-  body.fullscreen-active .table-wrap{flex:0 0 auto;min-height:56dvh;overflow:visible}
+  body.fullscreen-active{height:auto;min-height:100dvh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+  body.fullscreen-active .game{height:auto;min-height:100dvh;overflow:visible}
+  body.fullscreen-active .game-header{order:0;flex:0 0 54px}
+  body.fullscreen-active .controls{order:1;flex:0 0 auto;padding:5px 8px max(5px,env(safe-area-inset-bottom));border-top:0;border-bottom:1px solid rgba(228,196,119,.25);box-shadow:0 8px 22px rgba(0,0,0,.2)}
+  body.fullscreen-active .game-details{gap:5px;margin:0 auto 4px}
+  body.fullscreen-active .detail{flex:1 1 0;min-width:0;padding:4px 7px}
+  body.fullscreen-active .detail span{font-size:7px}
+  body.fullscreen-active .detail strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+  body.fullscreen-active .history-controls{margin:0 auto 4px}
+  body.fullscreen-active .history-controls button{min-height:27px;padding:4px 10px}
+  body.fullscreen-active .session-controls{margin:0 auto 3px}
+  body.fullscreen-active .actions{gap:5px;margin:3px auto 0;flex-wrap:nowrap}
+  body.fullscreen-active .actions button{flex:1 1 0;min-width:0;min-height:34px;padding:5px 6px;font-size:9px}
+  body.fullscreen-active .actions input{flex:1 1 76px;width:76px;min-width:54px;min-height:34px;padding:5px;font-size:9px}
+  body.fullscreen-active .history-panel{display:none}
+  body.fullscreen-active .table-wrap{order:2;flex:1 0 auto;min-height:0;padding:4px 8px 10px;overflow:visible}
+  body.fullscreen-active .table-shell{width:97vw;height:clamp(170px,50dvh,320px);min-height:0}
 }
